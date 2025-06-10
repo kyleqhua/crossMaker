@@ -30,7 +30,7 @@
 .grid-cell:hover {
   background-color: #85b3e7;
 }
-    
+
 .grid-cell.active {
   background-color: #e3f2fd;
   border-color: #25547a;
@@ -41,23 +41,23 @@
   background-color: #f5f5f5;
 }
 
-.grid-cell.empty {
-  background-color: white;
-}
-
 /* Black square styling*/
 .grid-cell.black {
-  background-color: #000000;
-  border-color: #000000;
-  color: #000000;
+  background-color: #1b1b1b;
+  border-color: #1b1b1b;
+  color: #1b1b1b;
   cursor: default;
 }
 
 .grid-cell.black:hover {
-  background-color: #000000;
+  background-color: #1b1b1b;
 }
 
-.grid-cell.black .label {
+.grid-cell .label {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 10px;
   color: #666;
 }
 
@@ -67,14 +67,6 @@
 
 .grid-cell.lowlight {
   background-color: #f5f5f5;
-}
-
-.grid-cell .label {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  font-size: 10px;
-  color: #666;
 }
 
 /* Add a subtle grid pattern */
