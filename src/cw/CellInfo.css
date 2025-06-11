@@ -1,18 +1,75 @@
 .cell-info {
-  background-color: white;
+  padding: 20px;
+  background: white;
   border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .cell-info h3 {
-  margin: 0 0 16px 0;
-  color: #333;
-  font-size: 18px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 8px;
+  margin: 0 0 15px 0;
+  color: #000;
+  font-size: 1.2em;
+  font-weight: 600;
+  width: 100%;
+}
+
+.cell-position,
+.cell-direction,
+.cell-label {
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 500;
+  width: 100%;
+  max-width: 250px;
+}
+
+.word-info {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.across-word,
+.down-word {
+  margin-bottom: 15px;
+  text-align: left;
+  width: 100%;
+}
+
+.across-word label,
+.down-word label {
+  display: block;
+  margin-bottom: 5px;
+  color: #000;
+  font-weight: 500;
+}
+
+.across-word input,
+.down-word input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #000;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.across-word input:read-only {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  color: #000;
+  border-color: #ddd;
 }
 
 .info-grid {
@@ -36,4 +93,43 @@
   font-size: 12px;
   color: #666;
   margin-top: 2px;
+}
+
+.clue-section {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.clue-display {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f8f8;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clue-display:hover {
+  background: #f0f0f0;
+}
+
+.clue-section input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #55b8fe;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: #000;
+  box-sizing: border-box;
+}
+
+.clue-section input:focus {
+  outline: none;
+  border-color: #55b8fe;
+  box-shadow: 0 1px 3px rgba(85, 184, 254, 0.2);
 } 

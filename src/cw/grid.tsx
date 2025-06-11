@@ -16,7 +16,6 @@ const keyboard = {
   "down": 40
 };
 
-const DASH = "-";
 const BLANK = " ";
 const ACROSS = "across";
 const DOWN = "down";
@@ -26,6 +25,10 @@ interface Cell {
   letter: string;
   state: 'empty' | 'filled' | 'active' | 'black';
   label?: number;
+  clue?: {
+    across?: string;
+    down?: string;
+  };
 }
 
 interface WordIndices {
@@ -68,6 +71,38 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     onGridChange?.(grid);
   }, [grid, onGridChange]);
 
+  const updateClueForWord = useCallback((row: number, col: number, dir: 'across' | 'down', clue: string) => {
+    setGrid(prev => {
+      const newGrid = [...prev];
+      const start = dir === ACROSS ? wordIndices.across.start : wordIndices.down.start;
+      const end = dir === ACROSS ? wordIndices.across.end : wordIndices.down.end;
+
+      // Update clue for all cells in the word
+      if (dir === ACROSS) {
+        for (let i = start; i < end; i++) {
+          newGrid[row][i] = {
+            ...newGrid[row][i],
+            clue: {
+              ...newGrid[row][i].clue,
+              across: clue
+            }
+          };
+        }
+      } else {
+        for (let i = start; i < end; i++) {
+          newGrid[i][col] = {
+            ...newGrid[i][col],
+            clue: {
+              ...newGrid[i][col].clue,
+              down: clue
+            }
+          };
+        }
+      }
+      return newGrid;
+    });
+  }, [wordIndices, setGrid]);
+
   const handleCellClick = (row: number, col: number) => {
     setActiveCell([row, col]);
     // Toggle direction if clicking the same cell
@@ -78,7 +113,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   };
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.repeat) return;
+    //if (e.repeat) return;
     const [row, col] = activeCell;
     let newRow = row;
     let newCol = col;

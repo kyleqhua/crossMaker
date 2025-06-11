@@ -63,7 +63,69 @@ function App() {
     return text.slice(start, end).replace(new RegExp(BLANK, 'g'), DASH)
   }, [grid])
 
-  // Ensure grid is initialized
+  // Update labels whenever grid changes
+  const updateLabels = useCallback(() => {
+    setGrid(prev => {
+      const newGrid = [...prev];
+      let count = 1;
+      
+      // First pass: identify cells that need labels
+      for (let i = 0; i < DEFAULT_SIZE; i++) {
+        for (let j = 0; j < DEFAULT_SIZE; j++) {
+          let isAcross = false;
+          let isDown = false;
+          
+          if (newGrid[i][j].state !== 'black') {
+            isDown = i === 0 || newGrid[i - 1][j].state === 'black';
+            isAcross = j === 0 || newGrid[i][j - 1].state === 'black';
+          }
+          
+          if (isAcross || isDown) {
+            newGrid[i][j] = { ...newGrid[i][j], label: count };
+            count++;
+          } else {
+            newGrid[i][j] = { ...newGrid[i][j], label: undefined };
+          }
+        }
+      }
+      return newGrid;
+    });
+  }, []);
+
+  // Handle clue updates
+  const handleClueUpdate = useCallback((row: number, col: number, dir: 'across' | 'down', clue: string) => {
+    setGrid(prev => {
+      const newGrid = [...prev];
+      const start = dir === ACROSS ? wordIndices.across.start : wordIndices.down.start;
+      const end = dir === ACROSS ? wordIndices.across.end : wordIndices.down.end;
+
+      // Update clue for all cells in the word
+      if (dir === ACROSS) {
+        for (let i = start; i < end; i++) {
+          newGrid[row][i] = {
+            ...newGrid[row][i],
+            clue: {
+              ...newGrid[row][i].clue,
+              across: clue
+            }
+          };
+        }
+      } else {
+        for (let i = start; i < end; i++) {
+          newGrid[i][col] = {
+            ...newGrid[i][col],
+            clue: {
+              ...newGrid[i][col].clue,
+              down: clue
+            }
+          };
+        }
+      }
+      return newGrid;
+    });
+  }, [wordIndices]);
+
+  // Ensure grid is initialized and update labels when grid changes
   useEffect(() => {
     if (!grid.length) {
       const initialGrid = Array(DEFAULT_SIZE).fill(null).map(() =>
@@ -74,8 +136,10 @@ function App() {
       )
       setGrid(initialGrid)
       setActiveCell([0, 0])
+    } else {
+      updateLabels();
     }
-  }, [grid])
+  }, [grid, updateLabels])
 
   return (
     <div style={{ display: 'flex', gap: '20px' }}>
@@ -94,11 +158,13 @@ function App() {
       {grid.length > 0 && (
         <CellInfo
           cell={grid[activeCell[0]][activeCell[1]]}
+          grid={grid}
           position={activeCell}
           direction={direction}
           wordIndices={wordIndices}
           acrossWord={getWordAt(activeCell[0], activeCell[1], ACROSS)}
           downWord={getWordAt(activeCell[0], activeCell[1], DOWN)}
+          onClueUpdate={handleClueUpdate}
         />
       )}
     </div>

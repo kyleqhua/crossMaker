@@ -27,7 +27,7 @@
   position: relative;
 }
 
-.grid-cell:hover {
+.grid-cell:not(.black):hover {
   background-color: #85b3e7;
 }
 
