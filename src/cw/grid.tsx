@@ -71,37 +71,6 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     onGridChange?.(grid);
   }, [grid, onGridChange]);
 
-  const updateClueForWord = useCallback((row: number, col: number, dir: 'across' | 'down', clue: string) => {
-    setGrid(prev => {
-      const newGrid = [...prev];
-      const start = dir === ACROSS ? wordIndices.across.start : wordIndices.down.start;
-      const end = dir === ACROSS ? wordIndices.across.end : wordIndices.down.end;
-
-      // Update clue for all cells in the word
-      if (dir === ACROSS) {
-        for (let i = start; i < end; i++) {
-          newGrid[row][i] = {
-            ...newGrid[row][i],
-            clue: {
-              ...newGrid[row][i].clue,
-              across: clue
-            }
-          };
-        }
-      } else {
-        for (let i = start; i < end; i++) {
-          newGrid[i][col] = {
-            ...newGrid[i][col],
-            clue: {
-              ...newGrid[i][col].clue,
-              down: clue
-            }
-          };
-        }
-      }
-      return newGrid;
-    });
-  }, [wordIndices, setGrid]);
 
   const handleCellClick = (row: number, col: number) => {
     setActiveCell([row, col]);
@@ -119,7 +88,6 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     let newCol = col;
     switch (e.which) {
       case keyboard.black:
-        e.preventDefault();
         setGrid(prev => {
           const newGrid = [...prev];
           const currentState = newGrid[row][col].state;
@@ -131,7 +99,10 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
           if (isSymmetrical) {
             const symRow = size - 1 - row;
             const symCol = size - 1 - col;
-            newGrid[symRow][symCol] = { ...newGrid[row][col] };
+            // Only update symmetrical cell if it's within bounds
+            if (symRow >= 0 && symRow < size && symCol >= 0 && symCol < size) {
+              newGrid[symRow][symCol] = { ...newGrid[row][col] };
+            }
           }
           return newGrid;
         });

@@ -63,14 +63,20 @@ export const CellInfo: React.FC<CellInfoProps> = ({
 
   // Get the label for the across word
   const getAcrossLabel = () => {
+    if (wordIndices.across.start < 0 || wordIndices.across.start >= grid[0].length) {
+      return '';
+    }
     const acrossCell = grid[position[0]][wordIndices.across.start];
-    return acrossCell.label ? `${acrossCell.label}a.` : '';
+    return acrossCell?.label ? `${acrossCell.label}a.` : '';
   };
 
   // Get the label for the down word
   const getDownLabel = () => {
+    if (wordIndices.down.start < 0 || wordIndices.down.start >= grid.length) {
+      return '';
+    }
     const downCell = grid[wordIndices.down.start][position[1]];
-    return downCell.label ? `${downCell.label}d.` : '';
+    return downCell?.label ? `${downCell.label}d.` : '';
   };
 
   return (

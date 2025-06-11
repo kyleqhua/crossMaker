@@ -63,34 +63,52 @@ function App() {
     return text.slice(start, end).replace(new RegExp(BLANK, 'g'), DASH)
   }, [grid])
 
-  // Update labels whenever grid changes
-  const updateLabels = useCallback(() => {
+  // 1. Only initialize grid on mount
+  useEffect(() => {
+    if (!grid.length) {
+      const initialGrid = Array(DEFAULT_SIZE).fill(null).map(() =>
+        Array(DEFAULT_SIZE).fill(null).map(() => ({
+          letter: BLANK,
+          state: 'empty'
+        }))
+      )
+      setGrid(initialGrid)
+      setActiveCell([0, 0])
+    }
+  }, []) // <-- only run once
+
+  // 2. Update labels only when grid changes, but only if needed
+  useEffect(() => {
+    if (!grid.length) return;
     setGrid(prev => {
-      const newGrid = [...prev];
+      let changed = false;
+      const newGrid = prev.map(row => row.map(cell => ({ ...cell })));
       let count = 1;
-      
-      // First pass: identify cells that need labels
       for (let i = 0; i < DEFAULT_SIZE; i++) {
         for (let j = 0; j < DEFAULT_SIZE; j++) {
           let isAcross = false;
           let isDown = false;
-          
           if (newGrid[i][j].state !== 'black') {
             isDown = i === 0 || newGrid[i - 1][j].state === 'black';
             isAcross = j === 0 || newGrid[i][j - 1].state === 'black';
           }
-          
           if (isAcross || isDown) {
-            newGrid[i][j] = { ...newGrid[i][j], label: count };
+            if (newGrid[i][j].label !== count) {
+              newGrid[i][j].label = count;
+              changed = true;
+            }
             count++;
           } else {
-            newGrid[i][j] = { ...newGrid[i][j], label: undefined };
+            if (newGrid[i][j].label !== undefined) {
+              newGrid[i][j].label = undefined;
+              changed = true;
+            }
           }
         }
       }
-      return newGrid;
+      return changed ? newGrid : prev;
     });
-  }, []);
+  }, [grid])
 
   // Handle clue updates
   const handleClueUpdate = useCallback((row: number, col: number, dir: 'across' | 'down', clue: string) => {
@@ -124,22 +142,6 @@ function App() {
       return newGrid;
     });
   }, [wordIndices]);
-
-  // Ensure grid is initialized and update labels when grid changes
-  useEffect(() => {
-    if (!grid.length) {
-      const initialGrid = Array(DEFAULT_SIZE).fill(null).map(() =>
-        Array(DEFAULT_SIZE).fill(null).map(() => ({
-          letter: BLANK,
-          state: 'empty'
-        }))
-      )
-      setGrid(initialGrid)
-      setActiveCell([0, 0])
-    } else {
-      updateLabels();
-    }
-  }, [grid, updateLabels])
 
   return (
     <div style={{ display: 'flex', gap: '20px' }}>
