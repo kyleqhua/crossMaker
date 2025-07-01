@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 
 import './App.css'
 import { CrosswordGrid } from './cw/grid'
-import { CellInfo } from './cw/CellInfo'
+import { CellInfoWrapper } from './cw/tabs/CellInfoWrapper'
 
 const DEFAULT_SIZE = 15
 const DASH = "-"
@@ -158,7 +158,7 @@ function App() {
         size={DEFAULT_SIZE}
       />
       {grid.length > 0 && (
-        <CellInfo
+        <CellInfoWrapper
           cell={grid[activeCell[0]][activeCell[1]]}
           grid={grid}
           position={activeCell}

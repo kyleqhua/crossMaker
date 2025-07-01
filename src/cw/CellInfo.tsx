@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './CellInfo.css';
+import './tabs/UnifiedInfo.css';
 
 interface Cell {
   letter: string;
@@ -37,8 +37,6 @@ export const CellInfo: React.FC<CellInfoProps> = ({
 }) => {
   const [acrossClue, setAcrossClue] = useState(cell.clue?.across || '');
   const [downClue, setDownClue] = useState(cell.clue?.down || '');
-  const [editingAcross, setEditingAcross] = useState(false);
-  const [editingDown, setEditingDown] = useState(false);
 
   // Update clue state when cell changes
   useEffect(() => {
@@ -86,7 +84,7 @@ export const CellInfo: React.FC<CellInfoProps> = ({
         Row: {position[0] + 1}, Col: {position[1] + 1}
       </div>
       <div className="cell-direction">
-        Direction: {direction}
+        Direction: {direction.charAt(0).toUpperCase() + direction.slice(1)}
       </div>
       {cell.label && (
         <div className="cell-label">
@@ -102,20 +100,13 @@ export const CellInfo: React.FC<CellInfoProps> = ({
             readOnly
           />
           <div className="clue-section">
-            <div className="clue-display" onClick={() => setEditingAcross(true)}>
-              {acrossClue || '(No clue)'}
-            </div>
-            {editingAcross && (
-              <input
-                type="text"
-                value={acrossClue}
-                onChange={(e) => handleClueChange('across', e.target.value)}
-                onKeyDown={handleKeyDown}
-                onBlur={() => setEditingAcross(false)}
-                autoFocus
-                placeholder="Enter across clue..."
-              />
-            )}
+            <textarea
+              value={acrossClue}
+              onChange={(e) => handleClueChange('across', e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter across clue..."
+              rows={3}
+            />
           </div>
         </div>
         <div className="down-word">
@@ -126,20 +117,13 @@ export const CellInfo: React.FC<CellInfoProps> = ({
             readOnly
           />
           <div className="clue-section">
-            <div className="clue-display" onClick={() => setEditingDown(true)}>
-              {downClue || '(No clue)'}
-            </div>
-            {editingDown && (
-              <input
-                type="text"
-                value={downClue}
-                onChange={(e) => handleClueChange('down', e.target.value)}
-                onKeyDown={handleKeyDown}
-                onBlur={() => setEditingDown(false)}
-                autoFocus
-                placeholder="Enter down clue..."
-              />
-            )}
+            <textarea
+              value={downClue}
+              onChange={(e) => handleClueChange('down', e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter down clue..."
+              rows={3}
+            />
           </div>
         </div>
       </div>
