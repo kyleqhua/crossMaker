@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react'
 import './App.css'
 import { CrosswordGrid } from './cw/grid'
 import { CellInfoWrapper } from './cw/tabs/CellInfoWrapper'
+import { Menu } from './cw/Menu'
 
 const DEFAULT_SIZE = 15
 const DASH = "-"
@@ -18,9 +19,16 @@ function App() {
     across: { start: 0, end: DEFAULT_SIZE },
     down: { start: 0, end: DEFAULT_SIZE }
   })
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
 
   const cellSize = 40; // px per cell
   const gridHeight = grid.length * cellSize;
+  const menuHeight = 72; // Updated height for new menu
+
+  // Theme management
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   // Helper to get word at a cell
   const getWordAt = useCallback((row: number, col: number, dir: 'across' | 'down', setIndices: boolean = false) => {
@@ -146,33 +154,45 @@ function App() {
     });
   }, [wordIndices]);
 
+  // Theme toggle handler
+  const handleThemeToggle = useCallback(() => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  }, []);
+
   return (
-    <div style={{ display: 'flex', gap: '20px' }}>
-      <CrosswordGrid
-        grid={grid}
-        setGrid={setGrid}
-        activeCell={activeCell}
-        setActiveCell={setActiveCell}
-        direction={direction}
-        setDirection={setDirection}
-        wordIndices={wordIndices}
-        setWordIndices={setWordIndices}
-        getWordAt={getWordAt}
-        size={DEFAULT_SIZE}
-      />
-      {grid.length > 0 && (
-        <CellInfoWrapper
-          cell={grid[activeCell[0]][activeCell[1]]}
-          grid={grid}
-          position={activeCell}
-          direction={direction}
-          wordIndices={wordIndices}
-          acrossWord={getWordAt(activeCell[0], activeCell[1], ACROSS)}
-          downWord={getWordAt(activeCell[0], activeCell[1], DOWN)}
-          onClueUpdate={handleClueUpdate}
-          gridHeight={gridHeight}
-        />
-      )}
+    <div className="app-container">
+      <Menu height={menuHeight} onThemeToggle={handleThemeToggle} />
+      <div className="app-content">
+        <div className="grid-section">
+          <CrosswordGrid
+            grid={grid}
+            setGrid={setGrid}
+            activeCell={activeCell}
+            setActiveCell={setActiveCell}
+            direction={direction}
+            setDirection={setDirection}
+            wordIndices={wordIndices}
+            setWordIndices={setWordIndices}
+            getWordAt={getWordAt}
+            size={DEFAULT_SIZE}
+          />
+        </div>
+        {grid.length > 0 && (
+          <div className="sidebar-section">
+            <CellInfoWrapper
+              cell={grid[activeCell[0]][activeCell[1]]}
+              grid={grid}
+              position={activeCell}
+              direction={direction}
+              wordIndices={wordIndices}
+              acrossWord={getWordAt(activeCell[0], activeCell[1], ACROSS)}
+              downWord={getWordAt(activeCell[0], activeCell[1], DOWN)}
+              onClueUpdate={handleClueUpdate}
+              gridHeight={gridHeight}
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

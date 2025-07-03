@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CellInfo } from '../CellInfo';
+import { FiInfo, FiBarChart, FiPieChart } from 'react-icons/fi';
+import { CellInfo } from './CellInfo';
 import { StatsTab } from './StatsTab';
 import { DistributionTab } from './DistributionTab';
 import './UnifiedInfo.css';
@@ -31,6 +32,12 @@ interface CellInfoWrapperProps {
 
 type TabType = 'info' | 'stats' | 'distribution';
 
+const tabs = [
+  { id: 'info' as TabType, label: 'Info', icon: <FiInfo />, tooltip: 'Cell information and clues' },
+  { id: 'stats' as TabType, label: 'Stats', icon: <FiBarChart />, tooltip: 'Puzzle statistics' },
+  { id: 'distribution' as TabType, label: 'Distribution', icon: <FiPieChart />, tooltip: 'Word length distribution' },
+];
+
 export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
   cell,
   grid,
@@ -46,25 +53,21 @@ export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
 
   return (
     <div className="cell-info-wrapper">
-      <div className="tab-header">
-        <button
-          className={`tab-button ${activeTab === 'info' ? 'active' : ''}`}
-          onClick={() => setActiveTab('info')}
-        >
-          Info
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
-          onClick={() => setActiveTab('stats')}
-        >
-          Stats
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'distribution' ? 'active' : ''}`}
-          onClick={() => setActiveTab('distribution')}
-        >
-          Distribution
-        </button>
+      <div className="tab-header" role="tablist">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`tabpanel-${tab.id}`}
+            title={tab.tooltip}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
       </div>
       
       <div
@@ -72,24 +75,30 @@ export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
         style={gridHeight ? { height: gridHeight } : undefined}
       >
         {activeTab === 'info' && (
-          <CellInfo
-            cell={cell}
-            grid={grid}
-            position={position}
-            direction={direction}
-            wordIndices={wordIndices}
-            acrossWord={acrossWord}
-            downWord={downWord}
-            onClueUpdate={onClueUpdate}
-          />
+          <div role="tabpanel" id="tabpanel-info" aria-labelledby="tab-info">
+            <CellInfo
+              cell={cell}
+              grid={grid}
+              position={position}
+              direction={direction}
+              wordIndices={wordIndices}
+              acrossWord={acrossWord}
+              downWord={downWord}
+              onClueUpdate={onClueUpdate}
+            />
+          </div>
         )}
         
         {activeTab === 'stats' && (
-          <StatsTab grid={grid} />
+          <div role="tabpanel" id="tabpanel-stats" aria-labelledby="tab-stats">
+            <StatsTab grid={grid} />
+          </div>
         )}
         
         {activeTab === 'distribution' && (
-          <DistributionTab grid={grid} />
+          <div role="tabpanel" id="tabpanel-distribution" aria-labelledby="tab-distribution">
+            <DistributionTab grid={grid} />
+          </div>
         )}
       </div>
     </div>

@@ -71,12 +71,19 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     onGridChange?.(grid);
   }, [grid, onGridChange]);
 
-
   const handleCellClick = (row: number, col: number) => {
     setActiveCell([row, col]);
     // Toggle direction if clicking the same cell
     if (row === activeCell[0] && col === activeCell[1]) {
       setDirection(prev => prev === ACROSS ? DOWN : ACROSS);
+      // Add direction change animation class
+      const cellElement = document.querySelector(`[data-cell="${row}-${col}"]`) as HTMLElement;
+      if (cellElement) {
+        cellElement.classList.add('direction-change');
+        setTimeout(() => {
+          cellElement.classList.remove('direction-change');
+        }, 250);
+      }
     }
     getWordAt(row, col, direction, true);
   };
@@ -152,6 +159,14 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
         break;
       case keyboard.enter:
         setDirection(prev => prev === ACROSS ? DOWN : ACROSS);
+        // Add direction change animation class
+        const cellElement = document.querySelector(`[data-cell="${row}-${col}"]`) as HTMLElement;
+        if (cellElement) {
+          cellElement.classList.add('direction-change');
+          setTimeout(() => {
+            cellElement.classList.remove('direction-change');
+          }, 250);
+        }
         break;
       default:
         if (e.which >= keyboard.a && e.which <= keyboard.z) {
@@ -202,6 +217,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
+                data-cell={`${rowIndex}-${colIndex}`}
                 className={`grid-cell ${
                   cell.state === 'black' ? 'black' :
                   isActive ? 'active' :
@@ -210,6 +226,15 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                   cell.state
                 }`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
+                role="button"
+                tabIndex={0}
+                aria-label={`Cell ${rowIndex + 1}, ${colIndex + 1}${cell.label ? `, number ${cell.label}` : ''}${cell.letter !== BLANK ? `, letter ${cell.letter}` : ''}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleCellClick(rowIndex, colIndex);
+                  }
+                }}
               >
                 {cell.label && <div className="label">{cell.label}</div>}
                 {cell.letter}

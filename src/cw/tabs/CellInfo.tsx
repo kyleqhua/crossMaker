@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './tabs/UnifiedInfo.css';
+import './UnifiedInfo.css';
 
 interface Cell {
   letter: string;
@@ -79,7 +79,6 @@ export const CellInfo: React.FC<CellInfoProps> = ({
 
   return (
     <div className="cell-info">
-      <h3>Info</h3>
       <div className="cell-position">
         Row: {position[0] + 1}, Col: {position[1] + 1}
       </div>
