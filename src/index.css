@@ -107,7 +107,7 @@
   --color-accent: #6d28d9;
   
   --bg-primary: #23272f;
-  --bg-secondary: #2d323c;
+  --bg-secondary: #23272f;
   --bg-tertiary: #3a3f4b;
   --bg-elevated: #23272f;
   --bg-overlay: rgba(0, 0, 0, 0.3);
@@ -123,7 +123,7 @@
   
   --grid-cell-bg: #2d323c;
   --grid-cell-border: #444a58;
-  --grid-cell-active: #475569;
+  --grid-cell-active: #334155;
   --grid-cell-highlight: #a78bfa;
   --grid-cell-lowlight: #23272f;
   --grid-cell-black: #181a1f;

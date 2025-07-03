@@ -197,6 +197,14 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Ensure only the current active cell has focus (for blue border)
+  useEffect(() => {
+    const cellElement = document.querySelector(`[data-cell="${activeCell[0]}-${activeCell[1]}"]`) as HTMLElement;
+    if (cellElement) {
+      cellElement.focus();
+    }
+  }, [activeCell]);
+
   return (
     <div className="grid-container">
       {grid.map((row, rowIndex) => (

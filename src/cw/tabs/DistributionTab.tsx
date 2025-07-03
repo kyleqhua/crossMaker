@@ -73,7 +73,6 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({ grid }) => {
 
   return (
     <div className="distribution-content">
-      <h3>Distribution</h3>
       <div className="stats-tables-row">
         <div className="stats-table">
           <div className="stats-table-title">Letters</div>

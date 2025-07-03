@@ -98,7 +98,6 @@ export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
 
   return (
     <div className="stats-content">
-      <h3>Grid Statistics</h3>
       <div className="stats-grid">
         <div className="stat-item">
           <span className="stat-label">Total Cells:</span>
