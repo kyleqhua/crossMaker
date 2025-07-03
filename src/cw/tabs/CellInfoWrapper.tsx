@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CellInfo } from '../CellInfo';
 import { StatsTab } from './StatsTab';
+import { DistributionTab } from './DistributionTab';
 import './UnifiedInfo.css';
 
 interface Cell {
@@ -25,9 +26,10 @@ interface CellInfoWrapperProps {
   acrossWord: string;
   downWord: string;
   onClueUpdate?: (row: number, col: number, dir: 'across' | 'down', clue: string) => void;
+  gridHeight?: number;
 }
 
-type TabType = 'info' | 'stats';
+type TabType = 'info' | 'stats' | 'distribution';
 
 export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
   cell,
@@ -37,7 +39,8 @@ export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
   wordIndices,
   acrossWord,
   downWord,
-  onClueUpdate
+  onClueUpdate,
+  gridHeight
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('info');
 
@@ -56,9 +59,18 @@ export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
         >
           Stats
         </button>
+        <button
+          className={`tab-button ${activeTab === 'distribution' ? 'active' : ''}`}
+          onClick={() => setActiveTab('distribution')}
+        >
+          Distribution
+        </button>
       </div>
       
-      <div className="tab-content">
+      <div
+        className="tab-content"
+        style={gridHeight ? { height: gridHeight } : undefined}
+      >
         {activeTab === 'info' && (
           <CellInfo
             cell={cell}
@@ -74,6 +86,10 @@ export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
         
         {activeTab === 'stats' && (
           <StatsTab grid={grid} />
+        )}
+        
+        {activeTab === 'distribution' && (
+          <DistributionTab grid={grid} />
         )}
       </div>
     </div>

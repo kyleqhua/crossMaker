@@ -15,9 +15,6 @@ interface StatsTabProps {
   grid: Cell[][];
 }
 
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const MAX_WORD_LENGTH = 15;
-
 export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
   const calculateStats = () => {
     let totalCells = 0;
@@ -61,25 +58,9 @@ export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
     };
   };
 
-  // Letter distribution (A-Z)
-  const getLetterDistribution = () => {
-    const counts: Record<string, number> = {};
-    LETTERS.forEach(l => (counts[l] = 0));
-    for (let row of grid) {
-      for (let cell of row) {
-        if (cell.letter && cell.letter.match(/^[A-Z]$/i)) {
-          const upper = cell.letter.toUpperCase();
-          if (counts[upper] !== undefined) counts[upper]++;
-        }
-      }
-    }
-    return counts;
-  };
-
-  // Word length distribution (across and down)
-  const getWordLengthDistribution = () => {
-    const lengths: Record<number, number> = {};
-    for (let i = 1; i <= MAX_WORD_LENGTH; i++) lengths[i] = 0;
+  // Calculate mean word length (across and down)
+  const getMeanWordLength = () => {
+    let wordLengths: number[] = [];
     // Across
     for (let row of grid) {
       let len = 0;
@@ -87,11 +68,11 @@ export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
         if (cell.state !== 'black') {
           len++;
         } else {
-          if (len > 0 && len <= MAX_WORD_LENGTH) lengths[len]++;
+          if (len > 0) wordLengths.push(len);
           len = 0;
         }
       }
-      if (len > 0 && len <= MAX_WORD_LENGTH) lengths[len]++;
+      if (len > 0) wordLengths.push(len);
     }
     // Down
     for (let col = 0; col < grid[0]?.length; col++) {
@@ -101,18 +82,19 @@ export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
         if (cell.state !== 'black') {
           len++;
         } else {
-          if (len > 0 && len <= MAX_WORD_LENGTH) lengths[len]++;
+          if (len > 0) wordLengths.push(len);
           len = 0;
         }
       }
-      if (len > 0 && len <= MAX_WORD_LENGTH) lengths[len]++;
+      if (len > 0) wordLengths.push(len);
     }
-    return lengths;
+    if (wordLengths.length === 0) return 0;
+    const sum = wordLengths.reduce((a, b) => a + b, 0);
+    return sum / wordLengths.length;
   };
 
   const stats = calculateStats();
-  const letterDist = getLetterDistribution();
-  const wordLenDist = getWordLengthDistribution();
+  const meanWordLength = getMeanWordLength();
 
   return (
     <div className="stats-content">
@@ -142,29 +124,9 @@ export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
           <span className="stat-label">Fill %:</span>
           <span className="stat-value">{stats.fillPercentage}%</span>
         </div>
-      </div>
-      <div className="stats-tables-row">
-        <div className="stats-table">
-          <div className="stats-table-title">Letters</div>
-          <div className="stats-table-list">
-            {LETTERS.map(l => (
-              <div className="stats-table-row" key={l}>
-                <span className="stats-table-label">{l}</span>
-                <span className="stats-table-value">{letterDist[l]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="stats-table">
-          <div className="stats-table-title">Word lengths</div>
-          <div className="stats-table-list">
-            {Array.from({ length: MAX_WORD_LENGTH }, (_, i) => i + 1).map(len => (
-              <div className="stats-table-row" key={len}>
-                <span className="stats-table-label">{len}</span>
-                <span className="stats-table-value">{wordLenDist[len]}</span>
-              </div>
-            ))}
-          </div>
+        <div className="stat-item">
+          <span className="stat-label">Mean word length:</span>
+          <span className="stat-value">{meanWordLength.toFixed(2)}</span>
         </div>
       </div>
     </div>

@@ -101,12 +101,12 @@ export const CellInfo: React.FC<CellInfoProps> = ({
           />
           <div className="clue-section">
             <textarea
-              value={acrossClue}
-              onChange={(e) => handleClueChange('across', e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter across clue..."
+                value={acrossClue}
+                onChange={(e) => handleClueChange('across', e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter across clue..."
               rows={3}
-            />
+              />
           </div>
         </div>
         <div className="down-word">
@@ -118,12 +118,12 @@ export const CellInfo: React.FC<CellInfoProps> = ({
           />
           <div className="clue-section">
             <textarea
-              value={downClue}
-              onChange={(e) => handleClueChange('down', e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter down clue..."
+                value={downClue}
+                onChange={(e) => handleClueChange('down', e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter down clue..."
               rows={3}
-            />
+              />
           </div>
         </div>
       </div>

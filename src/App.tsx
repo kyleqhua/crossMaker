@@ -19,6 +19,9 @@ function App() {
     down: { start: 0, end: DEFAULT_SIZE }
   })
 
+  const cellSize = 40; // px per cell
+  const gridHeight = grid.length * cellSize;
+
   // Helper to get word at a cell
   const getWordAt = useCallback((row: number, col: number, dir: 'across' | 'down', setIndices: boolean = false) => {
     let text = ""
@@ -167,6 +170,7 @@ function App() {
           acrossWord={getWordAt(activeCell[0], activeCell[1], ACROSS)}
           downWord={getWordAt(activeCell[0], activeCell[1], DOWN)}
           onClueUpdate={handleClueUpdate}
+          gridHeight={gridHeight}
         />
       )}
     </div>
