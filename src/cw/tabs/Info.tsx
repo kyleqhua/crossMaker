@@ -30,7 +30,6 @@ export const Info: React.FC<InfoProps> = ({
   cell,
   grid,
   position,
-  direction,
   wordIndices,
   acrossWord,
   downWord,
@@ -82,6 +81,9 @@ export const Info: React.FC<InfoProps> = ({
   const acrossWordLength = acrossWord.replace(/\s/g, '').length;
   const downWordLength = downWord.replace(/\s/g, '').length;
 
+  // Helper to check if a word is invalid (too short)
+  const isInvalidWord = (len: number) => len > 0 && len < 3;
+
   // Format word for display with underscores for empty spaces
   const formatWordDisplay = (word: string) => {
     if (!word) return '_ '.repeat(5); // Default placeholder
@@ -109,7 +111,11 @@ export const Info: React.FC<InfoProps> = ({
                   )}
                 </div>
               </div>
-              
+              {isInvalidWord(acrossWordLength) && (
+                <div className="invalid-word-warning">
+                  This is an <b>invalid word</b>: crossword words must be at least 3 letters.
+                </div>
+              )}
               <div className="word-preview-main">
                 <FiType className="word-icon" />
                 <span className="word-display">{formatWordDisplay(acrossWord)}</span>
@@ -149,7 +155,11 @@ export const Info: React.FC<InfoProps> = ({
                   )}
                 </div>
               </div>
-              
+              {isInvalidWord(downWordLength) && (
+                <div className="invalid-word-warning">
+                  This is an <b>invalid word</b>: crossword words must be at least 3 letters.
+                </div>
+              )}
               <div className="word-preview-main">
                 <FiType className="word-icon" />
                 <span className="word-display">{formatWordDisplay(downWord)}</span>

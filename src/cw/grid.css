@@ -4,7 +4,7 @@
   background-color: var(--bg-elevated);
   padding: var(--spacing-xl);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  /* box-shadow: var(--shadow-lg); */
   border: 1px solid var(--border-primary);
   position: relative;
   overflow: hidden;
@@ -224,4 +224,12 @@
 
 .grid-cell:focus {
   outline: none;
+}
+
+.grid-cell.two-letter-warning {
+  background-color: rgba(255, 120, 120, 0.25) !important;
+  border-color: #ffb3b3 !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 4px 1px rgba(255,120,120,0.15);
+  position: relative;
 } 

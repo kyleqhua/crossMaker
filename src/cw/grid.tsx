@@ -50,6 +50,46 @@ interface CrosswordGridProps {
   isSymmetrical?: boolean;
 }
 
+// Utility to find all cells in short words (length < 3)
+function findShortWordCells(grid: Cell[][]): Set<string> {
+  const warningCells = new Set<string>();
+  const size = grid.length;
+  // Across
+  for (let i = 0; i < size; i++) {
+    let j = 0;
+    while (j < size) {
+      // Skip black squares
+      while (j < size && grid[i][j].state === 'black') j++;
+      let start = j;
+      while (j < size && grid[i][j].state !== 'black') j++;
+      let end = j;
+      let length = end - start;
+      if (length > 0 && length < 3) {
+        for (let k = start; k < end; k++) {
+          warningCells.add(`${i}-${k}`);
+        }
+      }
+    }
+  }
+  // Down
+  for (let j = 0; j < size; j++) {
+    let i = 0;
+    while (i < size) {
+      while (i < size && grid[i][j].state === 'black') i++;
+      let start = i;
+      while (i < size && grid[i][j].state !== 'black') i++;
+      let end = i;
+      let length = end - start;
+      if (length > 0 && length < 3) {
+        for (let k = start; k < end; k++) {
+          warningCells.add(`${k}-${j}`);
+        }
+      }
+    }
+  }
+  return warningCells;
+}
+
 export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   grid,
   setGrid,
@@ -224,6 +264,8 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     }
   }, [activeCell]);
 
+  const shortWordWarningCells = findShortWordCells(grid);
+
   return (
     <div className="grid-container">
       {grid.map((row, rowIndex) => (
@@ -240,6 +282,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                 colIndex >= wordIndices.across.start && colIndex < wordIndices.across.end) ||
               (direction === ACROSS && colIndex === activeCell[1] &&
                 rowIndex >= wordIndices.down.start && rowIndex < wordIndices.down.end);
+            const isShortWordWarning = shortWordWarningCells.has(`${rowIndex}-${colIndex}`);
 
             return (
               <div
@@ -251,7 +294,7 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                   isHighlighted ? 'highlight' :
                   isLowlighted ? 'lowlight' :
                   cell.state
-                }`}
+                }${isShortWordWarning ? ' two-letter-warning' : ''}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 role="button"
                 tabIndex={0}

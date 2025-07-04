@@ -33,9 +33,9 @@ interface TabProps {
 type TabType = 'info' | 'stats' | 'distribution';
 
 const tabs = [
-  { id: 'info' as TabType, label: 'Info', icon: <FiInfo />, tooltip: 'Cell information and clues' },
-  { id: 'stats' as TabType, label: 'Stats', icon: <FiBarChart />, tooltip: 'Puzzle statistics' },
-  { id: 'distribution' as TabType, label: 'Distribution', icon: <FiPieChart />, tooltip: 'Word length distribution' },
+  { id: 'info' as TabType, label: 'Info', icon: <FiInfo />, tooltip: 'Info' },
+  { id: 'stats' as TabType, label: 'Stats', icon: <FiBarChart />, tooltip: 'Stats' },
+  { id: 'distribution' as TabType, label: 'Distribution', icon: <FiPieChart />, tooltip: 'Distribution' },
 ];
 
 export const Tab: React.FC<TabProps> = ({
@@ -65,7 +65,7 @@ export const Tab: React.FC<TabProps> = ({
             title={tab.tooltip}
           >
             {tab.icon}
-            {tab.label}
+            {/* {tab.label} */}
           </button>
         ))}
       </div>
