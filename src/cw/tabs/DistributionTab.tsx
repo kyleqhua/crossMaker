@@ -18,6 +18,37 @@ interface DistributionTabProps {
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const MAX_WORD_LENGTH = 15;
 
+// Histogram bar component
+interface HistogramBarProps {
+  label: string;
+  value: number;
+  maxValue: number;
+  color?: string;
+}
+
+const HistogramBar: React.FC<HistogramBarProps> = ({ label, value, maxValue, color = 'var(--color-primary)' }) => {
+  const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
+  
+  return (
+    <div className="histogram-row">
+      <div className="histogram-label">{label}</div>
+      <div className="histogram-bar-container">
+        <div 
+          className="histogram-bar" 
+          style={{ 
+            width: `${percentage}%`,
+            backgroundColor: color
+          }}
+        >
+          {value > 0 && (
+            <span className="histogram-value">{value}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const DistributionTab: React.FC<DistributionTabProps> = ({ grid }) => {
   // Letter distribution (A-Z)
   const getLetterDistribution = () => {
@@ -71,28 +102,38 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({ grid }) => {
   const letterDist = getLetterDistribution();
   const wordLenDist = getWordLengthDistribution();
 
+  // Calculate max values for scaling
+  const maxLetterCount = Math.max(...Object.values(letterDist));
+  const maxWordLengthCount = Math.max(...Object.values(wordLenDist));
+
   return (
     <div className="distribution-content">
       <div className="stats-tables-row">
         <div className="stats-table">
-          <div className="stats-table-title">Letters</div>
-          <div className="stats-table-list">
+          <div className="stats-table-title">Letter Distribution</div>
+          <div className="histogram-container">
             {LETTERS.map(l => (
-              <div className="stats-table-row" key={l}>
-                <span className="stats-table-label">{l}</span>
-                <span className="stats-table-value">{letterDist[l]}</span>
-              </div>
+              <HistogramBar
+                key={l}
+                label={l}
+                value={letterDist[l]}
+                maxValue={maxLetterCount}
+                color="var(--color-primary)"
+              />
             ))}
           </div>
         </div>
         <div className="stats-table">
-          <div className="stats-table-title">Word lengths</div>
-          <div className="stats-table-list">
+          <div className="stats-table-title">Word Length Distribution</div>
+          <div className="histogram-container">
             {Array.from({ length: MAX_WORD_LENGTH }, (_, i) => i + 1).map(len => (
-              <div className="stats-table-row" key={len}>
-                <span className="stats-table-label">{len}</span>
-                <span className="stats-table-value">{wordLenDist[len]}</span>
-              </div>
+              <HistogramBar
+                key={len}
+                label={len.toString()}
+                value={wordLenDist[len]}
+                maxValue={maxWordLengthCount}
+                color="var(--color-accent)"
+              />
             ))}
           </div>
         </div>

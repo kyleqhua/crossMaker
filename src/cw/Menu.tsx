@@ -140,7 +140,7 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
       
       {/* Edit Actions Group */}
       <div className="menu-group">
-        {menuItems.slice(3, 5).map((item, idx) => (
+        {menuItems.slice(3, 5).map((item) => (
           <button
             key={item.label}
             className={`menu-btn ${(item.action === 'undo' && !canUndo) || (item.action === 'redo' && !canRedo) ? 'disabled' : ''}`}
@@ -157,7 +157,7 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
       
       {/* View Toggles Group */}
       <div className="menu-group">
-        {menuItems.slice(5, 7).map((item, idx) => (
+        {menuItems.slice(5, 7).map((item) => (
           <button
             key={item.label}
             className="menu-btn"
@@ -173,7 +173,7 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
       
       {/* Tools Group */}
       <div className="menu-group">
-        {menuItems.slice(7, 10).map((item ) => (
+        {menuItems.slice(7, 10).map((item) => (
           <button
             key={item.label}
             className={`menu-btn ${item.action === 'symmetry' && !isSymmetrical ? 'active' : ''}`}

@@ -277,14 +277,6 @@ export const StatsTab: React.FC<StatsTabProps> = ({ grid }) => {
         </div>
       </div>
 
-      {/* Warnings Section */}
-      {stats.shortestWord.length === 3 && (
-        <div className="warning-section">
-          <div className="warning-item">
-            <span className="warning-text">Too many 3-letter words</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }; 
