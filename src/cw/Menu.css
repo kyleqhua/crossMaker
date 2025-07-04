@@ -85,7 +85,8 @@
   box-shadow: var(--shadow-md);
 }
 
-.menu-btn:disabled {
+.menu-btn:disabled,
+.menu-btn.disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;

@@ -44,7 +44,6 @@ interface CrosswordGridProps {
   direction: 'across' | 'down';
   setDirection: React.Dispatch<React.SetStateAction<'across' | 'down'>>;
   wordIndices: { across: WordIndices; down: WordIndices };
-  setWordIndices: React.Dispatch<React.SetStateAction<{ across: WordIndices; down: WordIndices }>>;
   getWordAt: (row: number, col: number, dir: 'across' | 'down', setIndices?: boolean) => string;
   size?: number;
   onGridChange?: (grid: Cell[][]) => void;
@@ -96,10 +95,16 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     switch (e.which) {
       case keyboard.black:
         setGrid(prev => {
-          const newGrid = [...prev];
+          const newGrid = prev.map(row => row.map(cell => ({ ...cell })));
           const currentState = newGrid[row][col].state;
           if (currentState === 'black') {
-            newGrid[row][col] = { letter: BLANK, state: 'empty' };
+            // Preserve existing label when changing from black to empty
+            newGrid[row][col] = { 
+              letter: BLANK, 
+              state: 'empty',
+              label: newGrid[row][col].label,
+              clue: newGrid[row][col].clue
+            };
           } else {
             newGrid[row][col] = { letter: BLANK, state: 'black' };
           }
@@ -139,13 +144,24 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
         break;
       case keyboard.delete:
         setGrid(prev => {
-          const newGrid = [...prev];
-          newGrid[row][col] = { letter: BLANK, state: 'empty' };
+          const newGrid = prev.map(row => row.map(cell => ({ ...cell })));
+          // Preserve existing label when deleting
+          newGrid[row][col] = { 
+            letter: BLANK, 
+            state: 'empty',
+            label: newGrid[row][col].label,
+            clue: newGrid[row][col].clue
+          };
           if (isSymmetrical) {
             const symRow = size - 1 - row;
             const symCol = size - 1 - col;
             if (newGrid[symRow][symCol].state === 'black') {
-              newGrid[symRow][symCol] = { letter: BLANK, state: 'empty' };
+              newGrid[symRow][symCol] = { 
+                letter: BLANK, 
+                state: 'empty',
+                label: newGrid[symRow][symCol].label,
+                clue: newGrid[symRow][symCol].clue
+              };
             }
           }
           return newGrid;
@@ -171,11 +187,14 @@ export const CrosswordGrid: React.FC<CrosswordGridProps> = ({
       default:
         if (e.which >= keyboard.a && e.which <= keyboard.z) {
           setGrid(prev => {
-            const newGrid = [...prev];
-            if (newGrid[row][col].state !== 'black') {
+            const newGrid = prev.map(row => row.map(cell => ({ ...cell })));
+            const currentState = newGrid[row][col].state;
+            if (currentState !== 'black') {
               newGrid[row][col] = {
                 letter: String.fromCharCode(e.which).toUpperCase(),
-                state: 'filled'
+                state: 'filled',
+                label: newGrid[row][col].label,
+                clue: newGrid[row][col].clue
               };
             }
             return newGrid;

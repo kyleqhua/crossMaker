@@ -1,225 +1,100 @@
 import { useState, useCallback, useEffect } from 'react'
-
 import './App.css'
 import { CrosswordGrid } from './cw/grid'
-import { CellInfoWrapper } from './cw/tabs/CellInfoWrapper'
+import { Tab } from './cw/tabs/Tab'
 import { Menu } from './cw/Menu'
-
-const DEFAULT_SIZE = 15
-const DASH = "-"
-const BLANK = " "
-const ACROSS = "across"
-const DOWN = "down"
+import { useCrosswordState } from './hooks/useCrosswordState'
+import { useCrosswordActions } from './hooks/useCrosswordActions'
+import { useTheme } from './hooks/useTheme'
+import { useClueManagement } from './hooks/useClueManagement'
+import { assignClueNumbers, createInitialGrid, getWordAt, computeWordIndices } from './utils/gridUtils'
+import { DEFAULT_SIZE, ACROSS, DOWN, CELL_SIZE, MENU_HEIGHT } from './constants/crossword'
 
 function App() {
-  // Helper to load state from localStorage
-  function loadCrosswordState() {
-    const saved = localStorage.getItem('crosswordState');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
-    return {};
-  }
+  // Use custom hooks for state management
+  const {
+    grid,
+    setGrid,
+    activeCell,
+    setActiveCell,
+    direction,
+    setDirection,
+    history,
+    historyIndex,
+    setHistory,
+    setHistoryIndex,
+    setIsUndoRedo,
+  } = useCrosswordState();
 
-  // Helper to assign clue numbers
-  function assignClueNumbers(grid: any[][], size: number) {
-    let count = 1;
-    const newGrid = grid.map(row => row.map(cell => ({ ...cell })));
-    for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++) {
-        let isAcross = false;
-        let isDown = false;
-        if (newGrid[i][j].state !== 'black') {
-          isDown = i === 0 || newGrid[i - 1][j].state === 'black';
-          isAcross = j === 0 || newGrid[i][j - 1].state === 'black';
-        }
-        if (isAcross || isDown) {
-          newGrid[i][j].label = count;
-          count++;
-        } else {
-          newGrid[i][j].label = undefined;
-        }
-      }
-    }
-    return newGrid;
-  }
+  const { theme, handleThemeToggle } = useTheme();
+  const [isSymmetrical, setIsSymmetrical] = useState<boolean>(true);
 
-  const savedState = loadCrosswordState();
-
-  const [grid, setGrid] = useState<any[][]>(
-    savedState.grid || []
+  // Use custom hooks for actions
+  const {
+    handleUndo,
+    handleRedo,
+    handleErase,
+    handleNewPuzzle,
+  } = useCrosswordActions(
+    grid,
+    setGrid,
+    setActiveCell,
+    setDirection,
+    history,
+    historyIndex,
+    setHistory,
+    setHistoryIndex,
+    setIsUndoRedo
   );
-  const [activeCell, setActiveCell] = useState<[number, number]>(
-    savedState.activeCell || [0, 0]
-  );
-  const [direction, setDirection] = useState<'across' | 'down'>(
-    savedState.direction || ACROSS
-  );
-  const [wordIndices, setWordIndices] = useState({
-    across: (savedState.wordIndices && savedState.wordIndices.across) || { start: 0, end: DEFAULT_SIZE },
-    down: (savedState.wordIndices && savedState.wordIndices.down) || { start: 0, end: DEFAULT_SIZE }
-  });
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
-  const cellSize = 40; // px per cell
-  const gridHeight = grid.length * cellSize;
-  const menuHeight = 72; // Updated height for new menu
+  const { handleClueUpdate } = useClueManagement(setGrid);
 
-  // Theme management
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  // Computed values
+  const gridHeight = grid.length * CELL_SIZE;
 
-  // Save to localStorage whenever state changes
-  useEffect(() => {
-    localStorage.setItem(
-      'crosswordState',
-      JSON.stringify({ grid, activeCell, direction, wordIndices })
-    );
-  }, [grid, activeCell, direction, wordIndices]);
+  // Helper to get word at a cell (memoized)
+  const getWordAtCallback = useCallback((row: number, col: number, dir: 'across' | 'down') => {
+    return getWordAt(grid, row, col, dir);
+  }, [grid]);
 
-  // Helper to get word at a cell
-  const getWordAt = useCallback((row: number, col: number, dir: 'across' | 'down', setIndices: boolean = false) => {
-    let text = ""
-    let start = 0
-    let end = grid.length
-    if (!grid.length) return ''
-    if (dir === ACROSS) {
-      text = grid[row].map((cell: any) => cell.letter).join('')
-      for (let i = col; i >= 0; i--) {
-        if (grid[row][i].state === 'black') {
-          start = i + 1
-          break
-        }
-      }
-      for (let i = col; i < grid.length; i++) {
-        if (grid[row][i].state === 'black') {
-          end = i
-          break
-        }
-      }
-    } else {
-      text = grid.map((row: any) => row[col].letter).join('')
-      for (let i = row; i >= 0; i--) {
-        if (grid[i][col].state === 'black') {
-          start = i + 1
-          break
-        }
-      }
-      for (let i = row; i < grid.length; i++) {
-        if (grid[i][col].state === 'black') {
-          end = i
-          break
-        }
-      }
-    }
-    if (setIndices) {
-      setWordIndices((prev: any) => ({
-        ...prev,
-        [dir]: { start, end }
-      }))
-    }
-    return text.slice(start, end).replace(new RegExp(BLANK, 'g'), DASH)
-  }, [grid])
-
-  // 1. Only initialize grid on mount
+  // Initialize grid on mount
   useEffect(() => {
     if (!grid.length) {
-      const initialGrid = Array(DEFAULT_SIZE).fill(null).map(() =>
-        Array(DEFAULT_SIZE).fill(null).map(() => ({
-          letter: BLANK,
-          state: 'empty'
-        }))
-      )
-      setGrid(assignClueNumbers(initialGrid, DEFAULT_SIZE))
-      setActiveCell([0, 0])
+      const initialGrid = createInitialGrid(DEFAULT_SIZE);
+      const gridWithNumbers = assignClueNumbers(initialGrid, DEFAULT_SIZE);
+      setGrid(gridWithNumbers);
+      // Initialize history with the first state
+      setHistory([gridWithNumbers]);
+      setHistoryIndex(0);
+      setActiveCell([0, 0]);
     }
-  }, []) // <-- only run once
+  }, []); // <-- only run once
 
-  // 2. Update labels only when grid changes, but only if needed
+  // Update clue numbers when the number of black squares changes
   useEffect(() => {
     if (!grid.length) return;
     setGrid(prev => assignClueNumbers(prev, prev.length));
-  }, [grid])
+  }, [grid.flat().filter(cell => cell.state === 'black').length]);
 
-  // Handle clue updates
-  const handleClueUpdate = useCallback((row: number, col: number, dir: 'across' | 'down', clue: string) => {
-    setGrid(prev => {
-      const newGrid = [...prev];
-      const start = dir === ACROSS ? wordIndices.across.start : wordIndices.down.start;
-      const end = dir === ACROSS ? wordIndices.across.end : wordIndices.down.end;
-
-      // Update clue for all cells in the word
-      if (dir === ACROSS) {
-        for (let i = start; i < end; i++) {
-          newGrid[row][i] = {
-            ...newGrid[row][i],
-            clue: {
-              ...newGrid[row][i].clue,
-              across: clue
-            }
-          };
-        }
-      } else {
-        for (let i = start; i < end; i++) {
-          newGrid[i][col] = {
-            ...newGrid[i][col],
-            clue: {
-              ...newGrid[i][col].clue,
-              down: clue
-            }
-          };
-        }
-      }
-      return newGrid;
-    });
-  }, [wordIndices]);
-
-  // Theme toggle handler
-  const handleThemeToggle = useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  }, []);
-
-  // Erase function to clear the board
-  const handleErase = useCallback(() => {
-    const size = grid.length || DEFAULT_SIZE;
-    const initialGrid = Array(size).fill(null).map(() =>
-      Array(size).fill(null).map(() => ({
-        letter: BLANK,
-        state: 'empty'
-      }))
-    );
-    setGrid(assignClueNumbers(initialGrid, size));
-    setActiveCell([0, 0]);
-    setDirection(ACROSS);
-    setWordIndices({
-      across: { start: 0, end: size },
-      down: { start: 0, end: size }
-    });
-  }, [grid.length]);
-
-  // New Puzzle handler
-  const handleNewPuzzle = useCallback((size: number) => {
-    const initialGrid = Array(size).fill(null).map(() =>
-      Array(size).fill(null).map(() => ({
-        letter: BLANK,
-        state: 'empty'
-      }))
-    );
-    setGrid(assignClueNumbers(initialGrid, size));
-    setActiveCell([0, 0]);
-    setDirection(ACROSS);
-    setWordIndices({
-      across: { start: 0, end: size },
-      down: { start: 0, end: size }
-    });
+  // Symmetry toggle handler
+  const handleSymmetryToggle = useCallback(() => {
+    setIsSymmetrical(prev => !prev);
   }, []);
 
   return (
     <div className="app-container">
-      <Menu height={menuHeight} onThemeToggle={handleThemeToggle} onErase={handleErase} onNewPuzzle={handleNewPuzzle} />
+      <Menu 
+        height={MENU_HEIGHT} 
+        onThemeToggle={handleThemeToggle} 
+        onErase={handleErase} 
+        onNewPuzzle={handleNewPuzzle} 
+        onSymmetryToggle={handleSymmetryToggle} 
+        onUndo={handleUndo} 
+        onRedo={handleRedo} 
+        isSymmetrical={isSymmetrical} 
+        canUndo={historyIndex > 0} 
+        canRedo={historyIndex < history.length - 1} 
+      />
       <div className="app-content">
         <div className="grid-section">
           <CrosswordGrid
@@ -229,22 +104,28 @@ function App() {
             setActiveCell={setActiveCell}
             direction={direction}
             setDirection={setDirection}
-            wordIndices={wordIndices}
-            setWordIndices={setWordIndices}
-            getWordAt={getWordAt}
+            wordIndices={{
+              across: computeWordIndices(grid, activeCell[0], activeCell[1], ACROSS),
+              down: computeWordIndices(grid, activeCell[0], activeCell[1], DOWN)
+            }}
+            getWordAt={getWordAtCallback}
             size={DEFAULT_SIZE}
+            isSymmetrical={isSymmetrical}
           />
         </div>
         {grid.length > 0 && (
           <div className="sidebar-section">
-            <CellInfoWrapper
+            <Tab
               cell={grid[activeCell[0]][activeCell[1]]}
               grid={grid}
               position={activeCell}
               direction={direction}
-              wordIndices={wordIndices}
-              acrossWord={getWordAt(activeCell[0], activeCell[1], ACROSS)}
-              downWord={getWordAt(activeCell[0], activeCell[1], DOWN)}
+              wordIndices={{
+                across: computeWordIndices(grid, activeCell[0], activeCell[1], ACROSS),
+                down: computeWordIndices(grid, activeCell[0], activeCell[1], DOWN)
+              }}
+              acrossWord={getWordAtCallback(activeCell[0], activeCell[1], ACROSS)}
+              downWord={getWordAtCallback(activeCell[0], activeCell[1], DOWN)}
               onClueUpdate={handleClueUpdate}
               gridHeight={gridHeight}
             />

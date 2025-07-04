@@ -1,5 +1,5 @@
 import React from 'react';
-import './UnifiedInfo.css';
+import './Stats.css';
 
 interface Cell {
   letter: string;

@@ -1,0 +1,124 @@
+/* ===== TAB COMPONENT STYLES ===== */
+
+/* Wrapper Styles */
+.cell-info-wrapper {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-primary);
+  min-width: 280px;
+  max-width: 340px;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+/* Tab Header */
+.tab-header {
+  display: flex;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+  position: relative;
+}
+
+.tab-button {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-family-sans);
+}
+
+.tab-button:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.tab-button.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.tab-button svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.5;
+}
+
+/* Tab Content */
+.tab-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  overflow: hidden;
+  animation: fadeIn var(--transition-normal);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab Panels */
+.tab-content > div[role="tabpanel"] {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cell-info-wrapper {
+    min-width: 280px;
+    max-width: 100%;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .cell-info-wrapper {
+    border-width: 2px;
+  }
+  
+  .tab-button.active::after {
+    height: 4px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .cell-info-wrapper {
+    transition: none;
+  }
+  
+  .tab-content {
+    animation: none;
+  }
+} 

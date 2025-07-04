@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FiInfo, FiBarChart, FiPieChart } from 'react-icons/fi';
-import { CellInfo } from './CellInfo';
+import { Info } from './Info';
 import { StatsTab } from './StatsTab';
 import { DistributionTab } from './DistributionTab';
-import './UnifiedInfo.css';
+import './Tab.css';
 
 interface Cell {
   letter: string;
@@ -15,7 +15,7 @@ interface Cell {
   };
 }
 
-interface CellInfoWrapperProps {
+interface TabProps {
   cell: Cell;
   grid: Cell[][];
   position: [number, number];
@@ -38,7 +38,7 @@ const tabs = [
   { id: 'distribution' as TabType, label: 'Distribution', icon: <FiPieChart />, tooltip: 'Word length distribution' },
 ];
 
-export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
+export const Tab: React.FC<TabProps> = ({
   cell,
   grid,
   position,
@@ -76,7 +76,7 @@ export const CellInfoWrapper: React.FC<CellInfoWrapperProps> = ({
       >
         {activeTab === 'info' && (
           <div role="tabpanel" id="tabpanel-info" aria-labelledby="tab-info">
-            <CellInfo
+            <Info
               cell={cell}
               grid={grid}
               position={position}

@@ -20,6 +20,12 @@ interface MenuProps {
   onThemeToggle?: () => void;
   onErase?: () => void;
   onNewPuzzle?: (size: number) => void;
+  onSymmetryToggle?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  isSymmetrical?: boolean;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 // Menu item action functions
@@ -55,14 +61,14 @@ const menuItems = [
   // Tools
   { label: 'Clipboard', icon: <FiClipboard />, tooltip: 'Copy to clipboard', action: 'clipboard' },
   { label: 'Erase', icon: <FiTrash2 />, tooltip: 'Clear puzzle', action: 'erase' },
-  { label: 'Symmetry', icon: <FiZap />, tooltip: 'Toggle symmetry', action: 'symmetry' },
+  { label: 'Symmetry', icon: <FiZap />, tooltip: 'Toggle symmetry off', action: 'symmetry' },
   
   // Settings
   { label: 'Dark Mode', icon: <FiMoon />, tooltip: 'Toggle dark mode', action: 'darkMode' },
   { label: 'Help', icon: <FiHelpCircle />, tooltip: 'Show help', action: 'help' },
 ];
 
-export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNewPuzzle }) => {
+export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNewPuzzle, onSymmetryToggle, onUndo, onRedo, isSymmetrical = true, canUndo = false, canRedo = false }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
 
@@ -72,6 +78,15 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
     }
     if (action === 'erase' && onErase) {
       onErase();
+    }
+    if (action === 'symmetry' && onSymmetryToggle) {
+      onSymmetryToggle();
+    }
+    if (action === 'undo' && onUndo) {
+      onUndo();
+    }
+    if (action === 'redo' && onRedo) {
+      onRedo();
     }
     if (action === 'newPuzzle') {
       setShowDropdown((prev) => !prev);
@@ -91,7 +106,7 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
     <div className="menu-sidebar" style={{ height }}>
       {/* File Actions Group */}
       <div className="menu-group" style={{ position: 'relative' }}>
-        {menuItems.slice(0, 3).map((item, idx) => (
+        {menuItems.slice(0, 3).map((item) => (
           <button
             key={item.label}
             className="menu-btn"
@@ -128,9 +143,10 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
         {menuItems.slice(3, 5).map((item, idx) => (
           <button
             key={item.label}
-            className="menu-btn"
+            className={`menu-btn ${(item.action === 'undo' && !canUndo) || (item.action === 'redo' && !canRedo) ? 'disabled' : ''}`}
             title={item.tooltip}
             onClick={() => handleClick(item.action)}
+            disabled={(item.action === 'undo' && !canUndo) || (item.action === 'redo' && !canRedo)}
           >
             {item.icon}
           </button>
@@ -157,10 +173,10 @@ export const Menu: React.FC<MenuProps> = ({ height, onThemeToggle, onErase, onNe
       
       {/* Tools Group */}
       <div className="menu-group">
-        {menuItems.slice(7, 10).map((item, idx) => (
+        {menuItems.slice(7, 10).map((item ) => (
           <button
             key={item.label}
-            className="menu-btn"
+            className={`menu-btn ${item.action === 'symmetry' && !isSymmetrical ? 'active' : ''}`}
             title={item.tooltip}
             onClick={() => handleClick(item.action)}
           >
